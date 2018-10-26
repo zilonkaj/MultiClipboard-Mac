@@ -1,0 +1,55 @@
+# Joseph Zilonka
+# Creates a multi-entry clipboard using pbcopy and pbpaste on macOS
+
+#!/bin/bash
+
+# constants to change text colors
+# ${COLOR} colors text and ${NC} resets it
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+# assigns pbpaste's output to buffer
+buffer=$(pbpaste)
+
+# clipboard is array
+clipboard[0]=$buffer
+
+#user input
+input=""
+
+while true; do
+	# get array size
+	clipboard_count=${#clipboard[@]}
+	
+	count=0
+
+	printf "Current clipboard entry: "
+	
+	echo -e ${RED}`pbpaste`${NC}
+	
+	echo -e Current array contents:
+	while [[ $count != $clipboard_count ]]
+	do  
+		echo -e ${CYAN}$count: ${BLUE}${clipboard[$count]}
+		((count++))
+	done
+	
+	echo -e ${NC}"Type 'add' to add entry, 'q' to quit, or num to set clipboard"
+	read input
+	if [ $input == "add" ]; then
+		buffer=$(pbpaste)
+		clipboard[clipboard_count]=$buffer
+		((clipboard_count++))
+		echo ""
+	elif [ $input == "q" ]; then 
+		exit 1
+	else
+		# change clipboard to chosen array element
+		printf "${clipboard[$input]}"|pbcopy
+		echo ""
+	fi
+done
+
